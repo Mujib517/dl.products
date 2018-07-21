@@ -1,4 +1,5 @@
 # DL Products
 
 ### To run this app
-1. node index.js
+1. npm install
+2. node index.js
