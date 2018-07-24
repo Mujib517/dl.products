@@ -9,7 +9,9 @@ app.listen(3000, function () {
 
 //route
 
-app.get('/', defaultCtrl.get);
-app.get('/books', bookCtrl.get);
-app.get('/authors', bookCtrl.authors);
+var defaultRouter = require('./routes/default.router');
+var bookRouter = require('./routes/books.router');
+
+app.use(defaultRouter);
+app.use(bookRouter);
 
