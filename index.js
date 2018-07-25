@@ -7,12 +7,24 @@ app.listen(3000, function () {
 });
 
 //route
+//middlewares
+
+
+function authenticate(req, res, next) {
+  next();
+  console.log("Inside middleware");
+  res.status(401);
+  res.send("Unauthorized");
+}
 
 var defaultRouter = require('./routes/default.router');
 var bookRouter = require('./routes/books.router');
 
 app.use(bodyParser.json());
 
-app.use(defaultRouter);
-app.use(bookRouter);
+
+app.use('/', defaultRouter);
+
+//GET http://domain.com/books/id
+app.use('/api/books', bookRouter);
 
