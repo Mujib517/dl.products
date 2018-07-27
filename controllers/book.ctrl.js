@@ -1,101 +1,155 @@
-var books = [{ id: 1, name: "Speaking JS", price: 100, inStock: false },
-{ id: 2, name: "Eloquent JS", price: 150, inStock: false },
-{ id: 3, name: "HeadFirst JS", price: 100, inStock: false }];
-
+var Book = require('../models/book.model');
 
 class BookCtrl {
 
-  //Rest api, websvc, svc, Rest svc, api
   get(req, res) {
-    //conventions
-    //status codes
-    //successful, successfully done,
 
-    //1xx 
-    //2xx -- Success  200,201,204, 
-    //3xx -- Redirects 301,302
-    //4xx -- Client error  404, 401, 400
-    //5xx -- Server error  500,501,502
+    var pageSize = 3;
 
-    res.status(200); //OK
-    res.json(books);
+    Book.count(function (err, cnt) {
+      if (!err) {
+        Book.find({}, { __v: 0 }, function (err, books) {
+          if (!err) {
+
+            var toatlPages = Math.ceil(cnt / pageSize);
+
+            var response = {
+              data: books,
+              metadata: {
+                count: cnt,
+                pages: toatlPages
+              }
+            };
+
+            res.status(200); //OK
+            res.json(response);
+          }
+          else {
+            res.status(500);
+            //logging
+            res.send("Internal Server Error");
+          }
+        });
+      }
+      else {
+        res.status(500);
+        res.send("Internal Server Error");
+      }
+    });
   }
 
   getById(req, res) {
-    var id = +req.params.id;
-    var book;
+    var id = req.params.id;
 
-    for (var i = 0; i < books.length; i++) {
-      if (books[i].id === id) {
-        book = books[i];
-        break;
+
+    Book.findById(id, { __v: 0 }, function (err, book) {
+
+      if (err) {
+        res.status(500); //Internal Server Error
+        res.send(err);
       }
-    }
+      else {
+        if (book) {
+          res.status(200);
+          res.json(book);
+        }
+        else {
+          res.status(404);
+          res.send("Not Found");
+        }
+      }
+    });
 
-    if (book) {
-      res.status(200);
-      res.json(book);
-    }
-    else {
-      res.status(404);
-      res.send("Not found");
-    }
+    // Book.findOne({ _id: id }, { __v: 0 }, function (err, book) {
+    //   res.status(200);
+    //   res.json(book);
+    // });
+
   }
 
   save(req, res) {
-    console.log(req.body);
+    var book = new Book(req.body);
 
-    books.push(req.body);
-
-    res.status(201); //Created
-    res.send(req.body);
+    book.save(function (err, book) {
+      if (!err) {
+        res.status(201); //Created
+        res.send(book);
+      }
+      else {
+        res.status(500);
+        res.send(err);
+      }
+    });
   }
 
   delete(req, res) {
-    var id = +req.params.id;
+    var id = req.params.id;
 
-    for (var i = 0; i < books.length; i++) {
-      if (books[i].id === id) {
-        books.splice(i, 1);
+    Book.findByIdAndRemove(id, function (err) {
+      if (!err) {
+        res.status(204); //No content
+        res.send();
       }
-    }
-
-    res.status(204); //No content
-    res.send();
+      else {
+        res.status(500);
+        res.send(err);
+      }
+    });
   }
 
   update(req, res) {
-    var id = +req.params.id;
+    var id = req.params.id;
 
-    for (var i = 0; i < books.length; i++) {
-      if (books[i].id === id) {
-        books[i].name = req.body.name;
-        books[i].author = req.body.author;
-        books[i].price = req.body.price;
-        books[i].inStock = req.body.inStock;
+    Book.findByIdAndUpdate(id, {
+      $set: {
+        name: req.body.name,
+        author: req.body.author,
+        price: req.body.price,
+        inStock: req.body.inStock
       }
-    }
-
-    res.status(204);
-    res.send();
+    }, function (err) {
+      if (!err) {
+        res.status(204);
+        res.send();
+      }
+      else {
+        res.status(500);
+        res.send(err);
+      }
+    });
   }
 
   //change password
   patch(req, res) {
-    var id = +req.params.id;
+    var id = req.params.id;
 
-    delete req.body.id;
+    delete req.body._id;
+    //freezed
 
-    for (var i = 0; i < books.length; i++) {
-      if (books[i].id === id) {
+    Book.findById(id, { _id: 0 }, function (err, book) {
+      if (book) {
+        var jsonBook = book.toJSON();
+
         for (var key in req.body) {
-          books[i][key] = req.body[key];
+          jsonBook[key] = req.body[key];
         }
-      }
-    }
 
-    res.status(204);
-    res.send();
+        Book.findByIdAndUpdate(id, jsonBook, function (err) {
+          if (!err) {
+            res.status(204);
+            res.send();
+          }
+          else {
+            res.status(500);
+            res.send(err);
+          }
+        });
+      }
+      else {
+        res.status(404);
+        res.send("Not found");
+      }
+    });
   }
 }
 
