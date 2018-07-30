@@ -8,11 +8,15 @@ class BookCtrl {
     var pageIndex = +req.params.pageIndex || 0;
 
     //Deferred execution
-    Book.count(function (err, cnt) {
-      if (!err) {
-        Book.find({}, { __v: 0 }, function (err, books) {
-          if (!err) {
-
+    Book.count()
+      .exec()
+      .then(function (cnt) {
+        Book.find({}, { __v: 0 })
+          .sort('-lastUpdated')
+          .skip(pageIndex * pageSize)
+          .limit(pageSize)
+          .exec()
+          .then(function (books) {
             var toatlPages = Math.ceil(cnt / pageSize);
 
             var response = {
@@ -25,22 +29,12 @@ class BookCtrl {
 
             res.status(200); //OK
             res.json(response);
-          }
-          else {
-            res.status(500);
-            //logging
-            res.send("Internal Server Error");
-          }
-        })
-          .sort('-lastUpdated')
-          .skip(pageIndex * pageSize)
-          .limit(pageSize);
-      }
-      else {
+          })
+      })
+      .catch(function () {
         res.status(500);
         res.send("Internal Server Error");
-      }
-    });
+      });
   }
 
   getById(req, res) {
@@ -61,31 +55,30 @@ class BookCtrl {
   save(req, res) {
     var book = new Book(req.body);
 
-    book.save(function (err, book) {
-      if (!err) {
+    book.save()
+      .then(function (book) {
         res.status(201); //Created
         res.send(book);
-      }
-      else {
+      })
+      .catch(function (err) {
         res.status(500);
         res.send(err);
-      }
-    });
+      });
   }
 
   delete(req, res) {
     var id = req.params.id;
 
-    Book.findByIdAndRemove(id, function (err) {
-      if (!err) {
-        res.status(204); //No content
+    Book.findByIdAndRemove(id)
+      .exec()
+      .then(function () {
+        res.status(204);
         res.send();
-      }
-      else {
+      })
+      .catch(function () {
         res.status(500);
-        res.send(err);
-      }
-    });
+        res.send("Internal Server Error");
+      });
   }
 
   update(req, res) {
@@ -98,16 +91,16 @@ class BookCtrl {
         price: req.body.price,
         inStock: req.body.inStock
       }
-    }, function (err) {
-      if (!err) {
+    })
+      .exec()
+      .then(function () {
         res.status(204);
         res.send();
-      }
-      else {
+      })
+      .catch(function () {
         res.status(500);
-        res.send(err);
-      }
-    });
+        res.send("Internal Server Error");
+      });
   }
 
   //change password
@@ -117,30 +110,26 @@ class BookCtrl {
     delete req.body._id;
     //freezed
 
-    Book.findById(id, { _id: 0 }, function (err, book) {
-      if (book) {
+    Book.findById(id, { _id: 0 })
+      .exec()
+      .then(function (book) {
         var jsonBook = book.toJSON();
 
         for (var key in req.body) {
           jsonBook[key] = req.body[key];
         }
 
-        Book.findByIdAndUpdate(id, jsonBook, function (err) {
-          if (!err) {
+        Book.findByIdAndUpdate(id, jsonBook)
+          .exec()
+          .then(function () {
             res.status(204);
             res.send();
-          }
-          else {
-            res.status(500);
-            res.send(err);
-          }
-        });
-      }
-      else {
-        res.status(404);
-        res.send("Not found");
-      }
-    });
+          })
+      })
+      .catch(function () {
+        res.status(500);
+        res.send("internal server error");
+      })
   }
 }
 
