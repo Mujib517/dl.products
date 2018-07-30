@@ -1,4 +1,5 @@
 var Book = require('../models/book.model');
+var bookSvc = require('../services/book.svc');
 
 class BookCtrl {
 
@@ -12,7 +13,7 @@ class BookCtrl {
       .exec()
       .then(function (count) {
         cnt = count;
-        
+
         return Book.find({}, { __v: 0 })
           .sort('-lastUpdated')
           .skip(pageIndex * pageSize)
@@ -39,19 +40,12 @@ class BookCtrl {
       });
   }
 
-  getById(req, res) {
+  async getById(req, res) {
     var id = req.params.id;
 
-    Book.findById(id, { __v: 0 })
-      .exec()
-      .then(function (book) {
-        res.status(200);
-        res.json(book);
-      })
-      .catch(function (err) {
-        res.status(500);
-        res.send("Internal Server Error");
-      });
+    var book = await bookSvc.getById(id);
+    res.status(200);
+    res.json(book);
   }
 
   save(req, res) {
