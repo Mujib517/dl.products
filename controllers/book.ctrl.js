@@ -6,30 +6,32 @@ class BookCtrl {
 
     var pageSize = +req.params.pageSize || 10;
     var pageIndex = +req.params.pageIndex || 0;
-
+    var cnt;
     //Deferred execution
     Book.count()
       .exec()
-      .then(function (cnt) {
-        Book.find({}, { __v: 0 })
+      .then(function (count) {
+        cnt = count;
+        
+        return Book.find({}, { __v: 0 })
           .sort('-lastUpdated')
           .skip(pageIndex * pageSize)
           .limit(pageSize)
           .exec()
-          .then(function (books) {
-            var toatlPages = Math.ceil(cnt / pageSize);
+      })
+      .then(function (books) {
+        var toatlPages = Math.ceil(cnt / pageSize);
 
-            var response = {
-              metadata: {
-                count: cnt,
-                pages: toatlPages
-              },
-              data: books
-            };
+        var response = {
+          metadata: {
+            count: cnt,
+            pages: toatlPages
+          },
+          data: books
+        };
 
-            res.status(200); //OK
-            res.json(response);
-          })
+        res.status(200); //OK
+        res.json(response);
       })
       .catch(function () {
         res.status(500);

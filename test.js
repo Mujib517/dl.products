@@ -10,10 +10,15 @@ function addAsync(a, b) {
   return prms;
 }
 
-var prms = addAsync(10, 20);
-prms.then(function (res) {
-  console.log(res);
-})
-  .catch(function (err) {
-    console.log(err);
-  });
+// addAsync(10, 20)
+//   .then(function (res) {
+//     console.log(res);
+//      new Promise()
+     
+//      return book.find().exec();
+//   })
+//   .then()
+
+//   .catch(function (err) {
+//     console.log(err);
+//   });
