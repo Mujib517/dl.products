@@ -4,8 +4,10 @@ class BookCtrl {
 
   get(req, res) {
 
-    var pageSize = 3;
+    var pageSize = +req.params.pageSize || 10;
+    var pageIndex = +req.params.pageIndex || 0;
 
+    //Deferred execution
     Book.count(function (err, cnt) {
       if (!err) {
         Book.find({}, { __v: 0 }, function (err, books) {
@@ -14,11 +16,11 @@ class BookCtrl {
             var toatlPages = Math.ceil(cnt / pageSize);
 
             var response = {
-              data: books,
               metadata: {
                 count: cnt,
                 pages: toatlPages
-              }
+              },
+              data: books
             };
 
             res.status(200); //OK
@@ -29,7 +31,10 @@ class BookCtrl {
             //logging
             res.send("Internal Server Error");
           }
-        });
+        })
+          .sort('-lastUpdated')
+          .skip(pageIndex * pageSize)
+          .limit(pageSize);
       }
       else {
         res.status(500);
@@ -41,30 +46,16 @@ class BookCtrl {
   getById(req, res) {
     var id = req.params.id;
 
-
-    Book.findById(id, { __v: 0 }, function (err, book) {
-
-      if (err) {
-        res.status(500); //Internal Server Error
-        res.send(err);
-      }
-      else {
-        if (book) {
-          res.status(200);
-          res.json(book);
-        }
-        else {
-          res.status(404);
-          res.send("Not Found");
-        }
-      }
-    });
-
-    // Book.findOne({ _id: id }, { __v: 0 }, function (err, book) {
-    //   res.status(200);
-    //   res.json(book);
-    // });
-
+    Book.findById(id, { __v: 0 })
+      .exec()
+      .then(function (book) {
+        res.status(200);
+        res.json(book);
+      })
+      .catch(function (err) {
+        res.status(500);
+        res.send("Internal Server Error");
+      });
   }
 
   save(req, res) {
