@@ -18,7 +18,9 @@ class BookCtrl {
       var response = {
         metadata: {
           count: count,
-          pages: toatlPages
+          pages: toatlPages,
+          hasPrevious: pageIndex !== 0,
+          hasNext: pageIndex < (toatlPages - 1)
         },
         data: books
       };
