@@ -15,10 +15,16 @@ mongoose.connect("mongodb://localhost:27017/productsDb", { useNewUrlParser: true
 });
 
 function authenticate(req, res, next) {
-  next();
-  console.log("Inside middleware");
-  res.status(401);
-  res.send("Unauthorized");
+  var credentials = req.headers["authorization"];
+  var tokens = credentials.split(" ");
+
+  var str = tokens[1];
+
+  var decodedString = new Buffer(str, "base64").toString();
+  var data = decodedString.split(":");
+
+  if (data[0] === "admin" && data[1] === "admin") next();
+  else res.status(401).send("Unauthorized");
 }
 
 var defaultRouter = require('./routes/default.router');
@@ -26,6 +32,7 @@ var bookRouter = require('./routes/books.router');
 
 app.use(bodyParser.json());
 
+app.use(authenticate);
 
 app.use('/', defaultRouter);
 
