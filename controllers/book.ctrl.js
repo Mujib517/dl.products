@@ -55,8 +55,7 @@ class BookCtrl {
       res.send(book);
     }
     catch (err) {
-      if (err && err.message && err.message.indexOf("validation failed") > -1)
-        res.status(500).send(err.message);
+      if (hasValidationError(err)) res.status(500).send(err.message);
       else res.status(500).res.send(err);
     }
   }
@@ -126,6 +125,11 @@ class BookCtrl {
         res.send("internal server error");
       })
   }
+}
+
+
+function hasValidationError(err) {
+  return err && err.message && err.message.indexOf("validation failed") > -1
 }
 
 module.exports = new BookCtrl();
