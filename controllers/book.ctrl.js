@@ -55,8 +55,9 @@ class BookCtrl {
       res.send(book);
     }
     catch (err) {
-      res.status(500);
-      res.send(err);
+      if (err && err.message && err.message.indexOf("validation failed") > -1)
+        res.status(500).send(err.message);
+      else res.status(500).res.send(err);
     }
   }
 

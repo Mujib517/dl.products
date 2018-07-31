@@ -1,10 +1,10 @@
 var mongoose = require('mongoose');
 
 var model = mongoose.model("Book", {
-  name: String,
-  author: String,
-  price: Number,
-  inStock: Boolean,
+  name: { type: String, required: [true, "Required"] },
+  author: { type: String, required: [true, "Required"] },
+  price: { type: Number, required: [true, "Required"] },
+  inStock: { type: Boolean, default: false },
   lastUpdated: { type: Date, default: Date.now }
 });
 
