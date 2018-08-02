@@ -1,5 +1,6 @@
 var userSvc = require('../services/user.svc');
 var cryptoSvc = require('../services/crypto.svc');
+var bcrypt = require('bcrypt');
 
 class UserCtrl {
 
@@ -16,6 +17,20 @@ class UserCtrl {
         res.status(409).send("Username already exists");
       else
         res.status(500).send("Internal Server Error");
+    }
+  }
+
+  async login(req, res) {
+    var user = await userSvc.getUserByEmail(req.body.username);
+    if (!user) res.status(401).send("Wrong username or password");
+    else {
+      var result = bcrypt.compareSync(req.body.password, user.password);
+      if (!result) res.status(401).send("Wrong username or password");
+      else {
+        if (!user.active) res.status(401).send("User account inactive");
+        else if (user.locked) res.status(401).send("User account is locked. Contact support team");
+        else res.status(200).send("Login successful");
+      }
     }
   }
 }

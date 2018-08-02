@@ -6,6 +6,12 @@ class UserService {
     var user = new User(data);
     return user.save();
   }
+
+  getUserByEmail(username) {
+    //find =[{}]
+    //findOne={}
+    return User.findOne({ username: username }).exec();
+  }
 }
 
 module.exports = new UserService();
