@@ -1,6 +1,5 @@
 var userSvc = require('../services/user.svc');
 var cryptoSvc = require('../services/crypto.svc');
-var bcrypt = require('bcrypt');
 
 class UserCtrl {
 
@@ -21,16 +20,30 @@ class UserCtrl {
   }
 
   async login(req, res) {
-    var user = await userSvc.getUserByEmail(req.body.username);
-    if (!user) res.status(401).send("Wrong username or password");
-    else {
-      var result = cryptoSvc.comparePwd(req.body.password, user.password);
-      if (!result) res.status(401).send("Wrong username or password");
+    try {
+
+      var user = await userSvc.getUserByEmail(req.body.username);
+      if (!user) res.status(401).send("Wrong username or password");
       else {
-        if (!user.active) res.status(401).send("User account inactive");
-        else if (user.locked) res.status(401).send("User account is locked. Contact support team");
-        else res.status(200).send("Login successful");
+        var result = cryptoSvc.comparePwd(req.body.password, user.password);
+        if (!result) res.status(401).send("Wrong username or password");
+        else {
+          if (!user.active) res.status(401).send("User account inactive");
+          else if (user.locked) res.status(401).send("User account is locked. Contact support team");
+          else {
+            var token = userSvc.generateToken(req.body.username);
+            var response = {
+              username: req.body.username,
+              token: token
+            };
+
+            res.status(200).json(response);
+          }
+        }
       }
+    }
+    catch (err) {
+      res.status(500).send("Internal Server Error");
     }
   }
 }

@@ -1,4 +1,5 @@
 var User = require('../models/user.model');
+var jwt = require('jsonwebtoken');
 
 class UserService {
 
@@ -11,6 +12,10 @@ class UserService {
     //find =[{}]
     //findOne={}
     return User.findOne({ username: username }).exec();
+  }
+
+  generateToken(username) {
+    return jwt.sign({ username: username }, "secret", { expiresIn: '1h' })
   }
 }
 
