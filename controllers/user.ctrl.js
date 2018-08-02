@@ -24,7 +24,7 @@ class UserCtrl {
     var user = await userSvc.getUserByEmail(req.body.username);
     if (!user) res.status(401).send("Wrong username or password");
     else {
-      var result = bcrypt.compareSync(req.body.password, user.password);
+      var result = cryptoSvc.comparePwd(req.body.password, user.password);
       if (!result) res.status(401).send("Wrong username or password");
       else {
         if (!user.active) res.status(401).send("User account inactive");
