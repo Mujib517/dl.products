@@ -26,7 +26,8 @@ app.use(bodyParser.json());
 app.use('/', defaultRouter);
 app.use('/api/users', userRouter);
 
-app.use(middlewares.authenticate);
+app.use(middlewares.validateToken);
+//app.use(middlewares.authenticate);
 //GET http://domain.com/books/id
 app.use('/api/books', bookRouter);
 

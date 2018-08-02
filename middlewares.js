@@ -1,3 +1,5 @@
+var jwt = require('jsonwebtoken');
+
 module.exports = {
   authenticate: function (req, res, next) {
     var credentials = req.headers["authorization"];
@@ -14,5 +16,23 @@ module.exports = {
       else res.status(401).send("Unauthorized");
     }
     else res.status(401).send("Unauthorized");
+  },
+
+  validateToken(req, res, next) {
+    var authHeader = req.headers["authorization"];
+    if (!authHeader) res.status(401).send("Unauthorized");
+    else {
+      //Bearer adfjakdf-adkfjakdjf==> [Bearer,adkfjakdjfkajdkfjk]
+      var tokens = authHeader.split(" ");
+      var authToken = tokens[1];
+
+      jwt.verify(authToken, 'secret', function (err) {
+        if (err) {
+          res.status(401).send("Unauthorized");
+        }
+        else next();
+      });
+    }
+
   }
 };
