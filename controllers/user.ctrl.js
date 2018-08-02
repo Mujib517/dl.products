@@ -12,13 +12,16 @@ class UserCtrl {
       res.send("Successfully Registered");
     }
     catch (err) {
-      if (err && err.message && err.message.indexOf("duplicate key error") > -1)
+      if (emailExists(err))
         res.status(409).send("Username already exists");
       else
         res.status(500).send("Internal Server Error");
     }
   }
+}
 
+function emailExists(err) {
+  return err && err.message && err.message.indexOf("duplicate key error") > -1;
 }
 
 module.exports = new UserCtrl()
