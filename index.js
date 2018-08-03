@@ -3,6 +3,8 @@ var app = express();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var middlewares = require('./middlewares');
+var trueLog = require('true-log');
+var fs = require('fs');
 
 app.listen(3000, function () {
   console.log("Server is running on 3000");
@@ -23,7 +25,12 @@ var reviewRouter = require('./routes/review.router');
 
 app.use(bodyParser.json());
 
+var ws = fs.createWriteStream("logs/request.log", { flags: 'a' });
+app.use(trueLog({ level: 'full', stream: ws }));
+
 app.use(express.static("uploads"));
+
+
 
 app.use('/', defaultRouter);
 app.use('/api/users', userRouter);
