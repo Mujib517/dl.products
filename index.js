@@ -23,6 +23,8 @@ var reviewRouter = require('./routes/review.router');
 
 app.use(bodyParser.json());
 
+app.use(express.static("uploads"));
+
 app.use('/', defaultRouter);
 app.use('/api/users', userRouter);
 

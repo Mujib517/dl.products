@@ -14,6 +14,10 @@ class BookCtrl {
       var count = await bookSvc.getCount();
       var books = await bookSvc.get(pageIndex, pageSize);
 
+      for (var i = 0; i < books.length; i++) {
+        books[i].image = req.protocol + "://" + req.get('host') + "/" + books[i].image;
+      }
+
       var toatlPages = Math.ceil(count / pageSize);
 
       var response = {
