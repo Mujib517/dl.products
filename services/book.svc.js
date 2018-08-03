@@ -16,7 +16,7 @@ class BookService {
 
   getById(id) {
     return Book
-      .findById(id)
+      .findById(id, { __v: 0 })
       .exec();
   }
 

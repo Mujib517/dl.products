@@ -1,5 +1,6 @@
 var Book = require('../models/book.model');
 var bookSvc = require('../services/book.svc');
+var reviewSvc = require('../services/review.svc');
 
 class BookCtrl {
 
@@ -38,9 +39,15 @@ class BookCtrl {
   async getById(req, res) {
     try {
       var id = req.params.id;
+      //mongoose object. Freezed
       var book = await bookSvc.getById(id);
+      var reviews = await reviewSvc.get(id);
+
+      var jsonBook = book.toJSON();
+      jsonBook.reviews = reviews;
+
       res.status(200);
-      res.json(book);
+      res.json(jsonBook);
     }
     catch (err) {
       res.status(500);
