@@ -1,18 +1,20 @@
 var Book = require('../models/book.model');
 var bookSvc = require('../services/book.svc');
 var reviewSvc = require('../services/review.svc');
+var logger = require('../utilities/app.logger');
 
 class BookCtrl {
 
   async get(req, res) {
     try {
-
       var pageSize = +req.params.pageSize || 10;
       var pageIndex = +req.params.pageIndex || 0;
       //Deferred execution
 
       var count = await bookSvc.getCount();
       var books = await bookSvc.get(pageIndex, pageSize);
+
+      logger.info(books);
 
       for (var i = 0; i < books.length; i++) {
         books[i].image = req.protocol + "://" + req.get('host') + "/" + books[i].image;
@@ -30,10 +32,12 @@ class BookCtrl {
         data: books
       };
 
+
       res.status(200);
       res.json(response);
     }
     catch (err) {
+      logger.error(err);
       res.status(500);
       res.send("Inetrnal Server Error");
     }

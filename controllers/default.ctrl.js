@@ -1,6 +1,10 @@
+var logger = require('../utilities/app.logger');
+
 var defaultCtrl = {
 
   get: function (req, res) {
+    //error,info,warn
+    logger.info({ myMsg: "some message" });
     res.send("Hello Express");
   },
 
