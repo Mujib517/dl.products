@@ -6,8 +6,10 @@ var middlewares = require('./middlewares');
 var trueLog = require('true-log');
 var fs = require('fs');
 
-app.listen(3000, function () {
-  console.log("Server is running on 3000");
+var port = process.env.PORT || 3000;
+
+app.listen(port, function () {
+  console.log("Server is running on ", port);
 });
 
 //route
