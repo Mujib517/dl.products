@@ -15,7 +15,7 @@ app.listen(port, function () {
 //route
 //middlewares
 
-mongoose.connect("mongodb://localhost:27017/productsDb", { useNewUrlParser: true }, function () {
+mongoose.connect("mongodb://admin:admin123@ds113482.mlab.com:13482/dl-products-db", { useNewUrlParser: true }, function () {
   console.log("Connected");
 });
 
