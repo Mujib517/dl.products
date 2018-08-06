@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var middlewares = require('./middlewares');
 var trueLog = require('true-log');
 var fs = require('fs');
+var config = require('./config');
 
 var port = process.env.PORT || 3000;
 
@@ -15,7 +16,7 @@ app.listen(port, function () {
 //route
 //middlewares
 
-mongoose.connect("mongodb://admin:admin123@ds113482.mlab.com:13482/dl-products-db", { useNewUrlParser: true }, function () {
+mongoose.connect(config.conStr, { useNewUrlParser: true }, function () {
   console.log("Connected");
 });
 
