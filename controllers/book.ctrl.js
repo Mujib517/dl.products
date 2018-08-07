@@ -50,9 +50,14 @@ class BookCtrl {
       //mongoose object. Freezed
       var book = await bookSvc.getById(id);
       var reviews = await reviewSvc.get(id);
+      var avgRating = await reviewSvc.getAvgRating(id);
+
+      console.log(avgRating);
 
       var jsonBook = book.toJSON();
       jsonBook.reviews = reviews;
+      if (avgRating && avgRating.length > 0)
+        jsonBook.avgRating = avgRating[0].avg;
 
       res.status(200);
       res.json(jsonBook);

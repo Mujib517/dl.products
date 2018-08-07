@@ -13,6 +13,14 @@ class ReviewService {
       .exec();
   }
 
+  getAvgRating(id) {
+    return Review.aggregate([
+      { $match: { bookId: id } },
+      { $group: { _id: '$bookId', avg: { $avg: '$rating' } } },
+      { $project: { _id: 0 } }
+    ]).exec();
+  }
+
 }
 
 var Review = require('../models/review.model');
